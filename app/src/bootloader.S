@@ -1,0 +1,2 @@
+.section .bootloader_section /* creates a separate bootloader section to add in the beginning to the starting of the flash memory */ 
+    .incbin "../bootloader/bootloader.bin" /* bootloader.bin file taken from bootloader folder after "make" for bootloader */
