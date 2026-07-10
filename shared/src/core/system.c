@@ -18,3 +18,10 @@ void rcc_setup(void){
 uint64_t system_get_ticks(void){
     return ticks;
 }
+
+void system_delay(uint64_t milliseconds){
+    uint64_t end_time = system_get_ticks() + milliseconds;
+    while(system_get_ticks() < end_time){
+        //spin
+    }
+}

@@ -1,0 +1,13 @@
+# Object files
+*.o
+*.d
+*.a
+
+# Firmware outputs
+*.elf
+*.bin
+*.hex
+*.map
+*.list
+
+

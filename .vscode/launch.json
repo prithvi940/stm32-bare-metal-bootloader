@@ -1,0 +1,85 @@
+{
+  "configurations": [
+    {
+      "name": "ST-Link: Debug Application",
+      "cwd": "${workspaceFolder}/app",
+      "executable": "./firmware.elf",
+      "servertype": "openocd",
+      "configFiles": [
+        "/usr/local/share/openocd/scripts/interface/stlink.cfg",
+        "/usr/local/share/openocd/scripts/target/stm32f4x.cfg"
+      ],
+      "request": "launch",
+      "type": "cortex-debug",
+      "device": "STM32F446RE",
+      "runToEntryPoint": "main",
+      "interface": "swd",
+      "preLaunchTask": "build_debug",
+      "gdbPath": "/usr/bin/gdb-multiarch",
+      "objdumpPath": "/usr/bin/arm-none-eabi-objdump",
+      "armToolchainPath": "/usr/bin/",
+      "openOCDLaunchCommands": [
+        "transport select swd"
+      ]
+    },
+    {
+      "name": "ST-Link: Debug Bootloader",
+      "cwd": "${workspaceFolder}/bootloader",
+      "executable": "./bootloader.elf",
+      "servertype": "openocd",
+      "configFiles": [
+        "/usr/local/share/openocd/scripts/interface/stlink.cfg",
+        "/usr/local/share/openocd/scripts/target/stm32f4x.cfg"
+      ],
+      "request": "launch",
+      "type": "cortex-debug",
+      "device": "STM32F446RE",
+      "runToEntryPoint": "main",
+      "interface": "swd",
+      "preLaunchTask": "build_debug",
+      "gdbPath": "/usr/bin/gdb-multiarch",
+      "objdumpPath": "/usr/bin/arm-none-eabi-objdump",
+      "armToolchainPath": "/usr/bin/",
+      "openOCDLaunchCommands": [
+        "transport select swd"
+      ]
+
+    },
+    {
+      "name": "ST-Link: Attach to Application",
+      "cwd": "${workspaceFolder}/app",
+      "executable": "./firmware.elf",
+      "servertype": "openocd",
+      "configFiles": [
+        "/usr/local/share/openocd/scripts/interface/stlink.cfg",
+        "/usr/local/share/openocd/scripts/target/stm32f4x.cfg"
+      ],
+      "request": "attach",
+      "type": "cortex-debug",
+      "device": "STM32F446RE",
+      "runToEntryPoint": "main",
+      "interface": "swd",
+      "gdbPath": "/usr/bin/gdb-multiarch",
+      "objdumpPath": "/usr/bin/arm-none-eabi-objdump",
+      "armToolchainPath": "/usr/bin/"
+    },
+    {
+      "name": "ST-Link: Attach to Bootloader",
+      "cwd": "${workspaceFolder}/bootloader",
+      "executable": "./bootloader.elf",
+      "servertype": "openocd",
+      "configFiles": [
+        "/usr/local/share/openocd/scripts/interface/stlink.cfg",
+        "/usr/local/share/openocd/scripts/target/stm32f4x.cfg"
+      ],
+      "request": "attach",
+      "type": "cortex-debug",
+      "device": "STM32F446RE",
+      "runToEntryPoint": "main",
+      "interface": "swd",
+      "gdbPath": "/usr/bin/gdb-multiarch",
+      "objdumpPath": "/usr/bin/arm-none-eabi-objdump",
+      "armToolchainPath": "/usr/bin/"
+    }
+  ]
+}

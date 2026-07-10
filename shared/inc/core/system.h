@@ -13,5 +13,6 @@ void systick_setup(void);
 // systick handler function is already has a definition in vector.h we are just overwriting it here
 uint64_t system_get_ticks(void);
 void rcc_setup(void); 
+void system_delay(uint64_t milliseconds);
 
 #endif
