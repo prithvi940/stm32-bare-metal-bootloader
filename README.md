@@ -19,3 +19,6 @@ This project is about the learning bare-metal programming from bottom up using t
 ## Sources 
 - [Youtube Playlist](https://youtube.com/playlist?list=PLP29wDx6QmW7HaCrRydOnxcy8QmW0SNdQ&si=7ZAxgRQhB5zHcD-X)
 - [Installing ST-Link drivers and setup environment](https://www.youtube.com/watch?v=FNDp1G0bYoU&t=1084s)
+
+## note
+firmware updater implementation is done already in typescript but also separate fw-updater is in progress using python 
