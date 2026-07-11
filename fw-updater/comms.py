@@ -19,10 +19,10 @@ def compute_crc(packetList, length=17):
         crc = crc ^ packetList[i]
         for j in range(8):
             if crc & 0x80:
-                crc = (crc << 1) ^ 0x07
+                crc = (crc << 1) ^ 0x07 & 0xff
             else:
                 crc <<= 1
-    return crc
+    return crc & 0xff
 
 
 PACKET_DATA_BYTES = 16
@@ -73,10 +73,10 @@ def comms_read():
     
 def packet_type(rxpacket):
     data = rxpacket[1]
-    if  rxpacket[0]== 1:
+    if  rxpacket[1] == 0x59:
         return PacketType.NACK
     elif rxpacket[1] == 0x15:
         return PacketType.ACK
     elif rxpacket[1] == 0x19:
         return PacketType.RETX
-    
+
