@@ -13,21 +13,25 @@ class PacketType(Enum):
     NACK = 2
     RETX = 3
 
-def compute_crc(packetList, length=17):
+def compute_crc(data):
     crc = 0
-    for i in range(length):
-        crc = crc ^ packetList[i]
-        for j in range(8):
+    for byte in data:
+        crc ^= byte
+        for _ in range(8):
             if crc & 0x80:
-                crc = (crc << 1) ^ 0x07 & 0xff
+                crc = ((crc << 1) ^ 0x07) & 0xFF
             else:
-                crc <<= 1
-    return crc & 0xff
+                crc = (crc << 1) & 0xFF
+    return crc
 
 
 PACKET_DATA_BYTES = 16
 PACKET_LEN_BYTES = 1
 PACKET_CRC_BYTES = 1
+ACK_PACKET = bytes([0x01, 0x15]) + bytes([0xff] * 15)
+RETX_PACKET = bytes([0x01, 0x19]) + bytes([0xff] * 15)
+ACK_PACKET = ACK_PACKET + bytes([compute_crc(ACK_PACKET)])
+RETX_PACKET = RETX_PACKET + bytes([compute_crc(RETX_PACKET)])
 
 packet = bytearray([])
 received_packet = bytearray([])
@@ -41,10 +45,11 @@ def comms_send_packet(outgoingPacket):
 def comms_create_packet(BytesToSend):
     packet.clear()
     state = WritePacketState.LENGTH
-    if BytesToSend < PACKET_DATA_BYTES:
+    if len(BytesToSend) <= PACKET_DATA_BYTES:
         while state != WritePacketState.DONE:
             if state == WritePacketState.LENGTH:
                 packetLength = len(BytesToSend)
+                print(f"length of packet : {packetLength}")
                 packet.append(packetLength)
                 state = WritePacketState.DATA
 
@@ -56,27 +61,40 @@ def comms_create_packet(BytesToSend):
                 state = WritePacketState.CRC
                     
             if state == WritePacketState.CRC:
-                crc = compute_crc(packet, packetLength + 1)
+                crc = compute_crc(packet)
                 packet.append(crc)
                 state = WritePacketState.DONE
             
     return packet
 
 def comms_read():
-    received_packet.clear()
     received_packet = uart.uart_read()
-    crc = received_packet[17]
-    computed_crc = compute_crc(received_packet[0:17])
-    if computed_crc != crc:
+
+    if len(received_packet) != 18:
+        print("Short packet:", len(received_packet), received_packet.hex(" "))
         return None
+        
+    crc = received_packet[17]
+    packet_data_length = received_packet[1]
+    computed_crc = compute_crc(received_packet[0:17])
+    print("Packet:", received_packet.hex(" "))
+    print("CRC input:", received_packet[:17].hex(" "))
+    print("CRC:", hex(compute_crc(received_packet[:17])))
+    
+    if computed_crc != crc:
+        comms_send_packet(RETX_PACKET)
+        return None
+    
+    ptype = packet_type(received_packet)
+    if ptype != None:
+        comms_send_packet(ACK_PACKET)
+
     return received_packet
     
 def packet_type(rxpacket):
     data = rxpacket[1]
-    if  rxpacket[1] == 0x59:
-        return PacketType.NACK
-    elif rxpacket[1] == 0x15:
+    if data == 0x15:
         return PacketType.ACK
-    elif rxpacket[1] == 0x19:
+    elif data == 0x19:
         return PacketType.RETX
 
