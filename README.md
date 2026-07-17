@@ -19,6 +19,9 @@ This project is about the learning bare-metal programming from bottom up using t
 ## Sources 
 - [Youtube Playlist](https://youtube.com/playlist?list=PLP29wDx6QmW7HaCrRydOnxcy8QmW0SNdQ&si=7ZAxgRQhB5zHcD-X)
 - [Installing ST-Link drivers and setup environment](https://www.youtube.com/watch?v=FNDp1G0bYoU&t=1084s)
-
-## note
-firmware updater implementation is done already in typescript but also separate fw-updater is in progress using python 
+  
+## Known Issues / In Progress
+- **Packet synchronization:** Packets sent from the Python firmware updater 
+  are occasionally out of sync with the STM32 bootloader. Root cause is DTR 
+  toggling on the Nucleo's onboard ST-Link VCP which resets the STM32 when 
+  the serial port opens, causing timing misalignment. Fix in progress.
