@@ -11,6 +11,8 @@
 #include "core/uart.h"
 #include "core/system.h"
 #include "comms.h"
+#include "bl-flash.h"
+#include "core/simple-timer.h"
 
 #define BOOTLOADER_SIZE        (0x8000U)
 #define MAIN_APP_START_ADDRESS (FLASH_BASE + BOOTLOADER_SIZE)
@@ -45,19 +47,8 @@ int main(void){
   comms_setup();
   gpio_setup();
 
-  comms_packet_t packet = {
-    .length = 9,
-    .data = {1, 2, 4, 5, 6, 7, 8, 9, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}, 
-    .crc = 0
-  };
-  packet.crc = comms_calculate_crc(&packet);
-  
-  
-
   while(true){
-    comms_write(&packet);
 
-    system_delay(500);
   }
 
   jump_to_main();

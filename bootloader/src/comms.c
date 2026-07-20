@@ -23,6 +23,7 @@ static uint32_t packet_read_index = 0;
 static uint32_t packet_write_index = 0;
 static uint32_t next_write_index = 0;
 static uint32_t packet_buffer_mask = PACKET_BUFFER_LENGTH - 1;
+uint32_t computed_crc = 0;
 
 
 bool comms_is_single_byte_packet(const comms_packet_t* packet, uint8_t data){
@@ -32,7 +33,7 @@ bool comms_is_single_byte_packet(const comms_packet_t* packet, uint8_t data){
     if(packet->data[0] != data)
         return false;
     
-    for(uint8_t i = 0; i < PACKET_DATA_BYTES; i++){
+    for(uint8_t i = 1; i < PACKET_DATA_BYTES; i++){
         if(packet->data[i] != 0xff)
             return false;
     }
@@ -50,14 +51,14 @@ void comms_packet_copy(const comms_packet_t* source, comms_packet_t* dest){
 void comms_setup(void){
     retx_packet.length = 1;
     retx_packet.data[0] = PACKET_RETX_DATA0;
-    for(uint8_t i = 1; i < PACKET_LENGTH_BYTES; i++){
+    for(uint8_t i = 1; i < PACKET_DATA_BYTES; i++){
         retx_packet.data[i] = 0xff;
     }
     retx_packet.crc = comms_calculate_crc(&retx_packet);
 
     ack_packet.length = 1;
     ack_packet.data[0] = PACKET_ACK_DATA0;
-    for(uint8_t i = 1; i < PACKET_LENGTH_BYTES; i++){
+    for(uint8_t i = 1; i < PACKET_DATA_BYTES; i++){
         ack_packet.data[i] = 0xff;
     }
     ack_packet.crc = comms_calculate_crc(&ack_packet);
@@ -85,10 +86,10 @@ void comms_update(void){
 
             case COMMSSTATE_CRC:{
                 temp_packet.crc = uart_read_byte();
-                uint8_t computed_crc = comms_calculate_crc(&temp_packet); 
+                computed_crc = comms_calculate_crc(&temp_packet);
                 // we using the temp_packet first byte's address as address for the data, starts from the LEN 
                 if(computed_crc != temp_packet.crc){
-                    comms_write(&temp_packet);
+                    comms_write(&retx_packet);
                     state = COMMSSTATE_LENGTH;
                     break;
                 }
@@ -105,6 +106,9 @@ void comms_update(void){
                 }
 
                 next_write_index = (packet_write_index + 1) & (packet_buffer_mask);
+                
+                if(next_write_index == packet_read_index)
+                    __asm__("BKPT #0");
                 
                 comms_packet_copy(&temp_packet, &packet_buffer[packet_write_index]);
                 packet_write_index = next_write_index;
@@ -145,5 +149,5 @@ void comms_read(comms_packet_t* packet){
 }
 
 uint8_t comms_calculate_crc(comms_packet_t* packet){
-    return crc8((uint8_t*)packet, (PACKET_LENGTH_BYTES + PACKET_DATA_BYTES));
+    return crc8((uint8_t*)packet, (PACKET_BYTES - PACKET_CRC_BYTES));
 }
